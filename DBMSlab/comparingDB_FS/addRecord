@@ -1,0 +1,11 @@
+#!/usr/bin/python
+from sys import argv
+import csv
+filename= argv[1]
+fileobj= open(filename,'r')
+print fileobj.readline()
+inputline = raw_input();
+inputrow= inputline.split(',')
+with open(filename,'a') as fileobj:
+        csvwriter = csv.writer(fileobj, delimiter=",")
+        csvwriter.writerow(inputrow)
