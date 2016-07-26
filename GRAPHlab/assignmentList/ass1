@@ -1,0 +1,10 @@
+chose 1 network from stanford DB
+(medium sized graph) with about 1000 nodes
+plot its topological properties like
+    degree distribution
+    clustering coefficient vs degree (scatter plot)
+    diameter
+    effective diameter
+    
+
+for plotting you may use gnuplot
