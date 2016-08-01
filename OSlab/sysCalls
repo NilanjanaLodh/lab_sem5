@@ -1,0 +1,614 @@
+System calls are the fundamental interface between application and linux kernel. The  list of (the most important) system calls, there uses, their corresponding glibc wrapper function and other info is available in the file ####.
+
+%eax , %ebx  etc :general purpose registers in 32 bit system.
+
+%eax stores the system call number initially . For instance, exit has a syscall number of 1.
+%ebx, %ecx etc store the arguments.
+
+for 64 bit linux these registers are renamed as follows :
+%eax : %rax
+%ebx : %rid
+etc..
+
+storing these things is done by the wrapper functions. We usually use the wrapper functions, and not the syscalls directly.
+
+
+*****SYS calls list**** (registers mentioned wrt 32 bit system)
+1_______________________
+
+exit :  terminate current process
+
+wrapper function : void exit(int status);
+
+In :
+    eax: 1 ##this is the system call number
+    ebx: return code
+
+Out: None
+type : process control 
+2_______________________
+
+fork : create child process
+function : pid_t fork(void);
+In :
+    eax : 2
+Out:
+    eax : PIDs
+
+type : process control 
+3_______________________
+
+read : read from file or device
+ssize_t read(int fd, void *buf, size_t count);
+In :
+    eax : 3
+    ebx : file descriptor 
+    ecx : address of the buffer to read 
+    edx : maximum no. of bytes to read
+Out:
+    eax : no. of bytes actually read
+
+type : file system related 
+4________________________
+
+write : write to file or device
+In :
+    eax : 4
+    ebx : file descriptor ( this is 1 for stdout)
+    ecx : address of the buffer to write from
+    edx : maximum no. of bytes to write
+Out:
+    eax : no. of bytes actually sent
+
+type : file system related
+
+5_______________________
+
+open : open / create / truncate a file or device
+In :
+    eax : 5
+    ebx : address of pathname
+    ecx : file access bits
+    edx : file permission mode
+
+Out:
+    eax : file descriptor of opened file
+
+type : file system related
+6_______________________
+
+close : close a file or device
+In :
+    eax : 6
+    ebx : file descriptor
+
+Out:
+    eax : 0 for success
+
+type : file system related
+
+7_______________________
+
+waitpid : wait for a process to terminate
+In :
+    eax : 7
+    ebx : pid of the process to wait for
+    ecx : address of the buffer to hold exit state
+    edx : option flags
+Out:
+    eax : PID of finished process
+    ecx : exit state of finished process
+type : process related
+
+8_______________________
+
+create : create a file 
+In :
+    eax : 8
+    ebx : address of pathname
+    ecx : file permission mode
+Out:
+    eax : file descriptor of opened file
+
+type : file related
+
+9_______________________
+
+link : Call the link function to create a symbolic link named FILE2 to an existing FILE1.
+
+link FILE1 FILE2
+
+In :
+    eax : 9
+    ebx : address of existing pathname
+    ecx : address of new pathname
+Out:
+    eax : some flags
+
+type : file system related
+
+Example/Application :
+    ln -s old_file new_file
+
+10_______________________
+
+unlink : delete a name and remove file when not busy
+In :
+    eax : 10
+    ebx : address of zero-terminated pathname of existing file name
+Out:
+    eax : some flag values
+
+type : file system related
+
+11_______________________
+
+execve : execute a program
+The exec() family of functions  replaces  the  current  process
+image  with  a  new  process image.  
+functions : int execv(const char *path, char *const argv[]);
+            int execvp(const char *path, char *const argv[]);
+
+In :
+    eax : 11
+    ebx : Address of the pathname of the program
+    ecx : address of ( list of addresses of argument strings)
+    edx : address of (list of addresses of environment strings)
+Out:
+    eax : if success, then no return; otherwise some flags stored
+
+type : process related
+
+12_______________________
+
+chdir  : change working directory
+In :
+    eax : 12
+    ebx : address of 0 terminated pathname of existing directory
+Out:
+    eax : 0 | some flags
+
+type : process related
+
+13_______________________
+
+time : returns the time since the Epoch (00:00:00 UTC, January 1, 1970), measured in seconds
+In :
+    eax : 13
+Out:
+    ebx : return value
+
+type : information maintenance
+
+14_______________________
+
+chmod : changes the access permissions to file system objects (files and directories) 
+signature : int chmod(const char *pathname, mode_t mode);
+In :
+    eax : 15
+    ebx : pathname
+    ecx : access mode word (octal representation)
+type : file system related
+
+15_______________________
+
+getpid  : get current process id
+In :
+    eax : 20
+
+type : information related
+
+16_______________________
+
+getuid : get the real user id of the user who started the process
+In :
+    eax : 24
+Out:
+    eax : return value (uid)
+
+type :information related
+
+17_______________________
+
+setuid : sets the effective user ID of the calling process.
+In :
+    eax : 23
+    ebx : The uid you want to set it to
+
+type : information related
+18_______________________
+
+geteuid : get the effective  user id of the user who started the process
+In :
+    eax : 49
+Out:
+    eax : return value (uid)
+
+type : information related
+
+19_______________________
+
+pause :  wait for signal
+pause() causes the calling process (or thread) to sleep until a signal is delivered that either terminates the process or causes  the  invocation of a signal-catching function.
+
+In :
+    eax : 29
+
+type : process related
+20_______________________
+
+fstat : get file status(returns information about a file) 
+wrapper function :  int fstat(int fd, struct stat *buf);
+In :
+    eax : 28
+Out:
+    returns the following values bundled as a structure :
+    - id of device containing file
+    - num of hard links
+    - uID of owner
+    - groupID of owner
+    - total size
+    - time of last access
+    etc.
+
+type : file system related
+Similar to fstat : stat, lstat
+
+21_______________________
+
+kill : used to dispatch a signal to the named process pr processes
+In :
+    eax : 37
+    ebx : PID
+    ecd : signal type to be sent
+Out:
+    eax : returns 0 in normal case , or some error flag otherwise
+
+type : process related
+
+22_______________________
+
+mkdir : used to make an empty directory with the permissions specified by mode argument in register ecx
+int sys_mkdir(const char * pathname, int mode)
+In :
+    eax : 39
+    ebx : address of pathname string 
+    ecx : mode
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+
+type : file system related
+
+23_______________________
+
+rmdir : To delete (empty) directory 
+
+int sys_rmdir(const char * pathname)
+In :
+    eax : 40
+    ebx : address of pathname string
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+
+type : file system related
+
+24________________________
+
+ptrace : process trace
+ int sys_ptrace(long request, long pid, long addr, long data)
+In :
+    eax : 26
+
+The ptrace() system call provides a means by which one process (the"tracer") may observe and control the execution of another process(the "tracee"), and examine and change the tracee's memory and registers.It is primarily used to implement breakpoint debugging  and system call tracing.
+
+type : process related
+
+25_______________________
+
+alarm : set an alarm clock for delivery of a signal
+unsigned int sys_alarm(unsigned int seconds)
+alarm() arranges for a SIGALRM signal to be delivered to the calling
+       process in seconds seconds
+In :
+    eax : 27
+    ebx : seconds
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+
+type : process related
+
+26_______________________
+chroot  : used to change the root of the file system 
+
+int sys_chroot(const char * filename)
+In :
+    eax : 61
+    ebx : address of pathname string
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+
+type : file system related
+27_______________________
+
+getppid  : Get parent process ID of the current process 
+
+int sys_getppid(void)
+In :
+    eax : 64
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+
+type : information related
+
+28_______________________
+
+setsid  : Set session ID of the current process
+
+int sys_setsid(void)
+In :
+    eax : 66
+    ebx : process id
+type :
+    information related
+
+29_______________________
+
+reboot : The reboot() call reboots the system, or enables/disables the reboot keystroke
+
+int sys_reboot(int magic1, int magic2, int cmd, void * arg)
+In :
+    eax : 88
+    ebx : magic numer1
+    .
+    .
+    .
+    
+Out:
+    eax : does not return anything on succesful reboot 
+type : process
+
+30_______________________
+
+clone  : creates a new process, in a manner similar to fork
+one() allows the child process to share parts of its execution context with the calling process, such as  the memory  space,  the table of file descriptors, and the table of signal handlers.
+
+In :
+    eax : 120
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+type : process
+31_______________________
+
+access :  check real user's permissions for a file
+
+int access(const char *pathname, int mode);
+In :
+    eax : 33
+    ebx : addresss of the pathname
+    ecx : mode
+Out:
+    eax :  returns 0 in normal case , or -1 otherwis
+
+type : file system
+
+32_______________________
+
+munmap  : unmap a block of memory
+The munmap() system call deletes the mappings for the specified address  range,  and  causes  further  references  to addresses within the range to generate invalid  memory  references.
+
+int munmap(void *addr, size_t length);
+In :
+    eax : 91
+    ebx : address
+    ecx : length
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+33_______________________
+
+mmap  : creates a new mapping in the virtual address space of the calling process.
+A call to mmap( ) asks the kernel to map length bytes of the object represented by the file descriptor fd, starting at offset bytes into the file, into memory. If addr is included, it indicates a preference to use that starting address in memory. The access permissions are dictated by prot, and additional behavior can be given by flags
+
+void* mmap(void *addr, size_t length, int prot, int flags, int fd, int offset)
+In :
+    eax : 90
+Out:
+    eax :  returns the starting address of the memory allocated
+34_______________________
+
+ioctl  : IO control
+
+int sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+
+This call is used extensively in device drivers
+fd  is a file descriptor corresponding to the IO device
+cmd is the request code
+arg is either an integer value or a pointer to data from the driver
+In :
+    eax : 54
+Out:
+    eax :  returns 0 on success and -1 on failure
+
+35_______________________
+
+getpgid  : Get parent group  ID of the current process 
+
+int sys_getppid(void)
+In :
+    eax : 57
+Out:
+    eax : The return value
+36_______________________
+
+uname  : print system information
+
+int sys_getppid(void)
+In :
+    eax : 109
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+37_______________________
+
+mprotect  : set protection on a region of memory
+
+int mprotect(void *addr, size_t len, int prot)
+addr : starting address of the momory to be protected
+prot : protection mode
+In :
+    eax : 125
+    ebx, ecx , edx : addr, len , prot
+Out:
+    eax :  returns 0 in normal case , -1 in case of error
+38_______________________
+
+lseek  : Reposition read/write file offset
+Repositions the offset of the open associated with the file descriptor fd to the  argument  according to the directive whence
+off_t lseek(int fd, off_t offset, int whence)
+
+In :
+    eax : 19
+    ebx : fd
+    ecx : offset
+    edx : whence
+39_______________________
+
+getdents  : Get direcory entried
+
+int getdents(unsigned int fd, struct linux_dirent *dirp,
+                    unsigned int count)
+reads several linux_dirent structures from the directory referred to by the open file descriptor  fd into  the buffer pointed to by dirp
+count is the size of the buffer
+In :
+    eax : 141
+Out:
+    On success, number of bytes read is returned
+
+
+40_______________________
+
+stat  : display file or file system status
+
+int stat(const char *pathname, struct stat *buf);
+In :
+    eax : 18
+Out:
+    eax :  returns 0 in normal case , -1 otherwise
+
+41_______________________
+
+mount  : Mounts file systems
+
+int mount(const char *source, const char *target,const char *filesystemtype, unsigned long mountflags, const void *data);
+
+attaches the filesystem specified by source (which is often a pathname referring to a device, but can also be the pathname of adirectory or file, or a dummy string) to the location (a directory orfile) specified by the pathname in target.              
+
+In :
+    eax : 21
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+42_______________________
+
+umount  : remove the attachment of the (topmost)
+       filesystem mounted on target
+
+int umount(const char *target);
+In :
+    eax : 52
+Out:
+    eax :  returns 0 in normal case , or -1 otherwise
+
+43_______________________
+
+fcntl : manipulate file descriptor
+
+int fcntl(int fd, int cmd, ... /* arg */ )
+In :
+    eax : 55
+    ebx , ecx , edx : arguments
+Out:
+    eax : return value depends on the operation(cmd) 
+
+44_______________________
+
+arch_prctl  : set architecture-specific thread state
+
+int arch_prctl(int code, unsigned long addr);
+int arch_prctl(int code, unsigned long *addr);
+sets architecture-specific process or thread state.  code selects a subfunction and  passes  argument
+addr  to it; addr is interpreted as either an unsigned long for the "set" operations, or as an unsigned long *, for  the  "get"
+operations.
+
+In :
+    eax : 172
+Out:
+    eax :  returns 0 in normal case , or -1 other wise
+
+45_______________________
+
+rt_sigaction  : examine and change a signal action
+
+int sigaction(int signum, const struct sigaction *act,
+                     struct sigaction *oldact);
+In :
+    eax : 174
+Out:
+    eax :  returns 0 in normal case , or -1 otherwise
+
+46_______________________
+
+getcwd  : Get current working directory
+
+char *getcwd(char *buf, size_t size)
+In :
+    eax : 183
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+
+47_______________________
+
+pipe  : create pipe
+pipe(int pipefd[2])
+  creates  a pipe, a unidirectional data channel that can be used
+for interprocess communication.  The array pipefd is used to return two
+file  descriptors  referring to the ends of the pipe.  pipefd[0] refers
+to the read end of the pipe.  pipefd[1] refers to the write end of  the
+pipe. 
+
+In :
+    eax : 41
+Out:
+    eax :  returns 0 in normal case , -1 for error
+
+type : Interprocess communication 
+
+48_______________________
+
+msgget  : The  msgget()  system  call  returns the message queue identifier associated with the value of the  key  argument.
+
+int msgget(key_t key, int msgflg);
+
+type : Interprocess communication
+
+49_______________________
+
+chown  : change file owner and group
+
+int chown(const char *pathname, uid_t owner, gid_t group)
+changes the ownership of the file specified by pathname,
+         which is dereferenced if it is a symbolic link
+In :
+    eax : 182
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+type : file system related
+
+50_______________________
+
+getppid  : Get parent process ID of the current process 
+
+int sys_getppid(void)
+In :
+    eax : 64
+Out:
+    eax :  returns 0 in normal case , or some error flag otherwise
+
+#######################################################

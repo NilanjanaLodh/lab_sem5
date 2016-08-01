@@ -1,0 +1,38 @@
+analysing system calls of some binaries 
+#########################################################
+'which' :
+strace -c which  :
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+  0.00    0.000000           0         2           read
+  0.00    0.000000           0         3           open
+  0.00    0.000000           0         3           close
+  0.00    0.000000           0         2           stat
+  0.00    0.000000           0         2           fstat
+  0.00    0.000000           0         7           mmap
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         3           brk
+  0.00    0.000000           0         7           rt_sigaction
+  0.00    0.000000           0         3         3 access
+  0.00    0.000000           0         1           getpid
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         2           fcntl
+  0.00    0.000000           0         1           geteuid
+  0.00    0.000000           0         1           getppid
+  0.00    0.000000           0         1           arch_prctl
+#########################################################
+
+analysing system calls for hello world program (hello.s)written in assembly which uses the system calls directy
+
+strace -c ./bin_hello
+
+Hello, World
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+  0.00    0.000000           0         1           write
+  0.00    0.000000           0         1           execve
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000000                     2           total
+
