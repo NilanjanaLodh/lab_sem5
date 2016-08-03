@@ -45,20 +45,31 @@ f.close()
 
 dia = snap.GetBfsFullDiam(G,100)
 print 'Diameter is ' , dia
+eff_dia= snap.GetAnfEffDiam(G, False, 0.9, 32) ;#the 90th percentile
+print 'Effective Diameter(ANF) is ' , eff_dia
 
+eff_dia =snap.GetBfsEffDiam(G, 100, False)
+print 'Effective Diameter(BFS) is ' , eff_dia
 #______clustering coefficient_______--
 
 f= open('deg_cc_points','w')
 node_cc_H = snap.TIntFltH() #node, cc hashmap
 snap.GetNodeClustCf(G, node_cc_H)
-node_cc= [None] * total_nodes;
-for nodeId in node_cc_H:
-    node_cc[nodeId]= node_cc_H[nodeId]
+#node_cc= [None] * total_nodes;
+#for nodeId in node_cc_H:
+#    node_cc[nodeId]= node_cc_H[nodeId]
 
 #nodeId ranges in [0,total_nodes)
 
 for nodeId in range(total_nodes):
-    f.write(str(node_deg[nodeId])+'\t'+str(node_cc[nodeId])+'\n')
+    f.write(str(node_deg[nodeId])+'\t'+str(node_cc_H[nodeId])+'\n')
 
 f.close()
-#_________________
+#______________centrality measures_____________
+maxcentr=0
+for node in G.Nodes():
+    DegCentr = snap.GetDegreeCentr(G, node.GetId())
+    #print "node: %d centrality: %f" % (node.GetId(), DegCentr)
+    maxcentr=max(DegCentr,maxcentr)
+
+print 'Maximum centrality is ' , maxcentr

@@ -7,7 +7,7 @@ plot 'DegDistr' using 1:2  title 'Frequency'
 set terminal wxt 1 persist
 set title 'Degree distibution'
 set xlabel 'degree(d)'
-set ylabel 'No. of users with atleast d friends'
+set ylabel 'No. of users with atmost d friends'
 plot 'DegDistr' using 1:3  title 'Cumulative Frequency' 
 
 set terminal wxt 2 persist
