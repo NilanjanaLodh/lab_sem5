@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <sys/stat.h>//for creat
 #include <fcntl.h>//for creat
+#include <signal.h>
+#include <errno.h>
 
 #define BUF 500
 
@@ -18,9 +20,16 @@ int numargs;
 bool inredirect,outredirect,background;
 void readcmd();
 void initialize();
+void sigchild_handler(int signum)
+{
+//    cout<<"sigchild handler invoked"<<endl;
+    while(waitpid(-1,NULL,WNOHANG)>0){}; 
+}
 
 int main()
 {
+
+    signal(SIGCHLD,sigchild_handler); //installing signal
     int dummy=0;
     int mychild=1;//arbit value
 
@@ -67,7 +76,7 @@ int main()
             }
             if(inredirect)
             {
-                int fd0=creat(ipfile, 777);
+                int fd0=open(ipfile, O_RDONLY);
                 if(fd0==-1)
                 {
                     printf("Invalid file name  \n"); fflush(stdout);
@@ -92,8 +101,7 @@ int main()
             exit(EXIT_FAILURE);
         }
         
-        if(!background) waitpid(mychild,0,0);
-        
+        if(!background)waitpid(mychild,0,0);    
         //printf("wait completed ");fflush(stdout);
                 
         
@@ -101,6 +109,7 @@ int main()
 
     exit(EXIT_SUCCESS);
 }
+
 void initialize()
 {
     opfile=NULL; ipfile=NULL;
@@ -113,12 +122,23 @@ void readcmd()//reads a line of input from stdin, and sets the flags background 
 {
     string str;
     getline(cin,str);
-    int pos_amp=str.find("&");
-    if(pos_amp != string::npos)
+    int i,pos;
+    vector<string> symbs;
+    symbs.push_back("&");
+    symbs.push_back("<");
+    symbs.push_back(">");
+
+    
+    for(i=0;i<symbs.size();i++)
     {
-        str.replace(pos_amp,1," & ");
+        pos=str.find(symbs[i]);
+        if(pos != string::npos)
+        {
+            str.replace(pos,1," "+symbs[i]+" ");
+        }
+
     }
-    char *strc =(char*) malloc(str.size()+1);
+       char *strc =(char*) malloc(str.size()+1);
     strcpy(strc,str.c_str());
     char *rest=strc;
     char *x; 
