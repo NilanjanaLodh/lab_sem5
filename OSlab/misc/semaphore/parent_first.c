@@ -1,10 +1,4 @@
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#define KEY (1584)
+#include "common.c"
 struct sembuf wait_op ={ 0 , -1 ,0 };
 struct sembuf signal_op= {0, 1 , 0};
 int main()
@@ -23,4 +17,6 @@ int main()
         printf("parent opening lock ...\n");
         semop(lockID, &signal_op , 1);
     }
+
+    semctl(lockID,0,IPC_RMID);
 }

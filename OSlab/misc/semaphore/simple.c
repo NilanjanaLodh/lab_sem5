@@ -1,10 +1,4 @@
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#define KEY (1584)
+#include "common.c"
 int main()
 {
     int lockID = semget(KEY,1,0666 | IPC_CREAT);
@@ -41,5 +35,5 @@ int main()
         semop(lockID,&signal_op, 1);
         printf(" The lock has been opened\n");fflush(stdout);
     }
-
+    semctl(lockID,0,IPC_RMID);
 }

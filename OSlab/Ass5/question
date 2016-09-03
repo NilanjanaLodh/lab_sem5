@@ -1,0 +1,5 @@
+In this assignement you have to create a shared memory segment capable of accomodating an integer which is shared among N processes (use fork() system call to create N processes). 
+
+ Initialize the  shared memory segment with zero (0). Out of the N processes, one process will read the value from the shared memory segment, compute its factorial and prints it. Each of the remaining N-1 processes will  increment the value of shared integer variable by one.
+
+  Obesrve the ouput and upload a short write-up explaining your observations.

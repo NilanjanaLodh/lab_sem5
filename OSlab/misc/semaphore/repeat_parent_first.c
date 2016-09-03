@@ -1,10 +1,4 @@
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#define KEY (1584)
+#include "common.c"
 int main()
 {
     fflush(stdout);
@@ -35,7 +29,7 @@ int main()
         while(1)
         {
             semop(lockID, &wait_op , 1); // 1 is the number of operations
-            printf("            child enters\n" );fflush(stdout);
+            printf("                        child enters\n" );fflush(stdout);
         }
     }
     else
@@ -44,9 +38,10 @@ int main()
         int x= 4;
         while(x--)
         {
+            printf("parent opening lock ... \n");fflush(stdout);
             semop(lockID,&signal_op, 1);
-            printf("The lock has been opened\n");fflush(stdout);
         }
     }
-
+    
+    semctl(lockID, 0, IPC_RMID);
 }

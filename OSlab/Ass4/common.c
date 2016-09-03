@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <signal.h>
 
-const char* path = "/home/hermoi-nil/Desktop/code/lab_sem5/OSlab/Ass4/common.c";
+const char* path = "./";
 
 int key_l,key_m,key_n,key_A,key_B,key_C ;
 

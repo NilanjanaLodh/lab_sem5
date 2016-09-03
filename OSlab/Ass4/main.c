@@ -80,7 +80,7 @@ int main()
     }
 
    int x;
-   while((x=waitpid(-1,0,WNOHANG))>=0) ///busy waiting
+   while((x=waitpid(-1,0,0))>0) ///WNOHANG :busy waiting
    {
        if(x>0)
            running_children -- ;

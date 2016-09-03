@@ -1,0 +1,50 @@
+./a.out 4
+factorial called due to child no. 17420   
+    current value of x : 0
+    factorial computed : 1
+return 
+___________________
+
+factorial called due to child no. 17421 
+    current value of x : 0
+    factorial computed : 1
+return 
+___________________
+
+child : 17420 
+    prev x : 0 
+    new x : 1 
+exiting 17420
+__________________
+
+factorial called due to child no. 17422 
+    current value of x : 1
+    factorial computed : 1
+return 
+___________________
+
+child : 17421 
+    prev x : 1 
+    new x : 2 
+exiting 17421
+__________________
+
+factorial called due to child no. 17423 
+    current value of x : 2
+    factorial computed : 2
+return 
+___________________
+
+child : 17422 
+    prev x : 2 
+    new x : 3 
+child : 17423 
+exiting 17422
+__________________
+
+    prev x : 3 
+    new x : 4 
+exiting 17423
+__________________
+
+
